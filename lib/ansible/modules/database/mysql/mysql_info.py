@@ -199,6 +199,14 @@ class MySQL_Info(object):
     def __init__(self, module, cursor):
         self.module = module
         self.cursor = cursor
+        self.__wants_databases = True
+        self.__wants_global_variables = True
+        self.__wants_engines = True
+        self.__wants_users = True
+        self.__wants_master_status = True
+        self.__wants_slave_status = True
+        self.__wants_slaves = True
+
         self.info = {
             'version': {},
             'databases': {},
@@ -210,6 +218,39 @@ class MySQL_Info(object):
             'slave_status': {},
         }
 
+    def necessary_filter(self, filter_, boolean=True):
+        """Choose necessary instance information
+        """
+        self.__wants_databases = False
+        self.__wants_global_variables = False
+        self.__wants_engines = False
+        self.__wants_users = False
+        self.__wants_master_status = False
+        self.__wants_slave_status = False
+        self.__wants_slaves = False
+
+        for str_ in filter_:
+            if str_ == 'version' or str_ == 'settings':
+                self.__wants_global_variables = boolean
+
+            if str_ == 'databases':
+                self.__wants_databases = boolean
+
+            if str_ == 'users':
+                self.__wants_users = boolean
+
+            if str_ == 'slave_status':
+                self.__wants_slave_status = boolean
+
+            if str_ == 'slave_hosts':
+                self.__wants_slave = boolean
+
+            if str_ == 'master_status':
+                self.__wants_master_status = boolean
+
+            if str_ == 'engines':
+                self.__wants_engines = boolean
+
     def get_info(self, filter_):
         """Get MySQL instance information based on filter_.
 
@@ -217,7 +258,6 @@ class MySQL_Info(object):
             filter_ (list): List of collected subsets (e.g., databases, users, etc.),
                 when it is empty, return all available information.
         """
-        self.__collect()
 
         inc_list = []
         exc_list = []
@@ -237,11 +277,18 @@ class MySQL_Info(object):
                     inc_list.append(fi)
 
             if inc_list:
+                self.necessary_filter(inc_list)
+                self.__collect()
+
                 for i in self.info:
                     if i in inc_list:
                         partial_info[i] = self.info[i]
 
             else:
+                not_in_exc_list = list(set(self.info) - set(exc_list))
+                self.necessary_filter(not_in_exc_list)
+                self.__collect()
+
                 for i in self.info:
                     if i not in exc_list:
                         partial_info[i] = self.info[i]
@@ -249,17 +296,31 @@ class MySQL_Info(object):
             return partial_info
 
         else:
+            self.__collect()
             return self.info
 
     def __collect(self):
         """Collect all possible subsets."""
-        self.__get_databases()
-        self.__get_global_variables()
-        self.__get_engines()
-        self.__get_users()
-        self.__get_master_status()
-        self.__get_slave_status()
-        self.__get_slaves()
+        if self.__wants_databases:
+            self.__get_databases()
+
+        if self.__wants_global_variables:
+            self.__get_global_variables()
+
+        if self.__wants_engines:
+            self.__get_engines()
+
+        if self.__wants_users:
+            self.__get_users()
+
+        if self.__wants_master_status:
+            self.__get_master_status()
+
+        if self.__wants_slave_status:
+            self.__get_slave_status()
+
+        if self.__wants_slaves:
+            self.__get_slaves()
 
     def __get_engines(self):
         """Get storage engines info."""
