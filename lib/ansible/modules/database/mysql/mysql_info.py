@@ -217,7 +217,6 @@ class MySQL_Info(object):
             filter_ (list): List of collected subsets (e.g., databases, users, etc.),
                 when it is empty, return all available information.
         """
-        # self.__collect()
 
         inc_list = []
         exc_list = []
