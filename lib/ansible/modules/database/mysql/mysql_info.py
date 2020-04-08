@@ -259,27 +259,26 @@ class MySQL_Info(object):
     def __collect(self, wanted):
         """Collect all possible subsets."""
 
-        for str_ in wanted:
-            if str_ == 'version' or str_ == 'settings':
-                self.__get_global_variables()
+        if 'version' in wanted or == 'settings' in wanted:
+            self.__get_global_variables()
 
-            if str_ == 'databases':
-                self.__get_databases()
+        if 'databases' in wanted:
+            self.__get_databases()
 
-            if str_ == 'engines':
-                self.__get_engines()
+        if 'engines' in wanted:
+            self.__get_engines()
 
-            if str_ == 'users':
-                self.__get_users()
+        if 'users' in wanted:
+            self.__get_users()
 
-            if str_ == 'master_status':
-                self.__get_master_status()
+        if 'master_status' in wanted:
+            self.__get_master_status()
 
-            if str_ == 'slave_status':
-                self.__get_slave_status()
+        if 'slave_status' in wanted:
+            self.__get_slave_status()
 
-            if str_ == 'slave_hosts':
-                self.__get_slaves()
+        if 'slave_hosts' in wanted:
+            self.__get_slaves()
 
     def __get_engines(self):
         """Get storage engines info."""
