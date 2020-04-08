@@ -259,7 +259,7 @@ class MySQL_Info(object):
     def __collect(self, wanted):
         """Collect all possible subsets."""
 
-        if 'version' in wanted or == 'settings' in wanted:
+        if 'version' in wanted or 'settings' in wanted:
             self.__get_global_variables()
 
         if 'databases' in wanted:
